@@ -2,6 +2,57 @@
 var error = 0;
 var d = 0;
 var server_status = new Array();
+let moneyKV = {
+	"":1,
+	"y" : 1,
+	"￥" : 1,
+	"元" : 1,
+	"人民币" : 1,
+	"RMB" : 1,
+	"$": 7.0159,
+	"刀": 7.0159,
+	"美元": 7.0159,
+	"o": 7.7388,
+	"欧元": 7.7388,
+	"r": 0.1102,
+	"卢布": 0.1102,
+	"hkd": 0.9003,
+	"円": 0.06421,
+	"日元": 0.06421
+};
+let timeKV = {
+	"y" : 1,
+	"yr" : 1,
+	"2yr" : 0.5,
+	"3yr" : 0.333333,
+
+	"year" : 1,
+	"2year" : 0.5,
+	"3year" : 0.333333,
+
+	"annually" : 1,
+	"semi-annually" : 2,
+	"semi annually" : 2,
+	"qua" : 4,
+	"quater" : 4,
+	"m" : 12,
+	"mon" : 12,
+	"month" : 12,
+	"d": 365,
+	"day": 365,
+	"h": 8760,
+	"hour": 8760,
+
+	"年" : 1,
+	"2年" : 0.5,
+	"3年" : 0.333333,
+	"半年" : 2,
+	"季" : 4,
+	"季度" :4,
+	"月" : 12,
+	"天" : 365,
+	"小时":8760
+};
 
 function timeSince(date) {
 	if(date == 0)
@@ -71,70 +122,23 @@ function bytesToSize(bytes, precision, si){
 }
 
 function moneyText2money(moneyText){
+	if(moneyText === "-") return 0;
+	if(moneyText === "0") return 0;
+
 	try{
         let data = moneyText.split("/");
         let time_ratio = 1;
         let money_ratio = 1;
-
         if(data.length > 1){
             // 计算时间倍数
             let timeText = data[1]; // yr
-            let timeKV = {
-                "y" : 1,
-                "yr" : 1,
-                "2yr" : 0.5,
-                "3yr" : 0.333333,
-
-                "year" : 1,
-                "2year" : 0.5,
-                "3year" : 0.333333,
-
-                "annually" : 1,
-                "semi-annually" : 2,
-                "semi annually" : 2,
-                "qua" : 4,
-                "quater" : 4,
-                "m" : 12,
-                "mon" : 12,
-                "month" : 12,
-                "d": 365,
-                "day": 365,
-				"h": 8760,
-				"hour": 8760,
-
-                "年" : 1,
-                "2年" : 0.5,
-                "3年" : 0.333333,
-                "半年" : 2,
-                "季" : 4,
-                "季度" :4,
-                "月" : 12,
-                "天" : 365,
-				"小时":8760
-            };
             let timeKey = Object.keys(timeKV).filter(function(one){return one == timeText.toLowerCase();});
             time_ratio = timeKV[timeKey[0]];
         }
 
         // 计算汇率倍数
         let price = data[0];  // 99$
-        let moneyKV = {
-            "":1,
-            "y" : 1,
-            "￥" : 1,
-            "元" : 1,
-            "人民币" : 1,
-            "RMB" : 1,
-            "$": 6.9952,
-            "美元": 6.9952,
-            "o": 7.7388,
-            "欧元": 7.7388,
-            "r": 0.1102,
-            "卢布": 0.1102,
-            "hkd": 0.9003,
-            "円": 0.06421,
-            "日元": 0.06421
-        };
+        
         let money = parseFloat(price); // 得到实际数据
         let rateText = price.substring((money+"").length);
         let moneyKey = Object.keys(moneyKV).filter(function(one){return one == rateText.toLowerCase();});
@@ -229,9 +233,14 @@ function uptime() {
 			// Location
 			TableRow.children["location"].innerHTML = result.servers[i].location;
 
-			TableRow.children["priceExtra"].innerHTML = result.servers[i].extra1;
 
-            totalPrice += moneyText2money(result.servers[i].extra1);
+			// Price
+			var curMoney = moneyText2money(result.servers[i].extra1);
+			var curMoney_to_dollor = (curMoney / moneyKV["$"]).toFixed(2);
+            totalPrice += curMoney;
+
+			TableRow.children["priceExtra"].innerHTML = result.servers[i].extra1;
+			TableRow.children["priceExtra"].setAttribute("title", `${curMoney_to_dollor}刀/年 == ${curMoney.toFixed(2)}元/年`);
 
 			if (!result.servers[i].online4 && !result.servers[i].online6) {
 				if (server_status[i]) {
