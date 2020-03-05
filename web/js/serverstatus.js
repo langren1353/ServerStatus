@@ -235,11 +235,19 @@ function uptime() {
 
 
 			// Price
-			var curMoney = moneyText2money(result.servers[i].extra1);
+			var priceText = result.servers[i].extra1;
+			var addFeed = priceText.indexOf("#") != 0; // 数据是否记录存放
+			priceText = priceText.replace(/^#/, "");
+			var curMoney = moneyText2money(priceText);
 			var curMoney_to_dollor = (curMoney / moneyKV["$"]).toFixed(2);
-            totalPrice += curMoney;
-
-			TableRow.children["priceExtra"].innerHTML = result.servers[i].extra1;
+			
+			if(addFeed){
+				totalPrice += curMoney;
+				TableRow.children["priceExtra"].innerHTML = `<span class='orange'>${priceText}</span>`;
+			}else{
+				TableRow.children["priceExtra"].innerHTML = `<span class='gray'>${priceText}</span>`;
+			}
+			
 			TableRow.children["priceExtra"].setAttribute("title", `${curMoney_to_dollor}刀/年 == ${curMoney.toFixed(2)}元/年`);
 
 			if (!result.servers[i].online4 && !result.servers[i].online6) {
