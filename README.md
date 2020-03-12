@@ -49,7 +49,7 @@ cd /www/wwwroot/
 git clone https://github.com/langren1353/ServerStatus.git
 ```
 
-###2.【进行服务端配置】（服务端程序在ServerStatus/web下）:  
+### 2.【进行服务端配置】（服务端程序在ServerStatus/web下）:  
           
 一、生成服务端程序，安装依赖项目，并`编译-这里需要编译环境自己先配好`
 ```
